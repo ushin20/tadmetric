@@ -4,8 +4,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from .metrics import EvaluationResult, evaluate_scores
-from .validation import check_binary_array
+from .metrics import EvaluationResult, Evaluator
 from .validation import check_score_array
 
 
@@ -67,38 +66,11 @@ def search_best_f1_threshold(
     metric_kwargs: dict[str, object] | None = None,
     zero_division: float = 0.0,
 ) -> ThresholdSearchResult:
-    check_binary_array(y_true, name="y_true")
-    candidates = _threshold_candidates(y_score)
-
-    best_result: ThresholdSearchResult | None = None
-    for threshold in candidates:
-        evaluation = evaluate_scores(
-            y_true,
-            y_score,
-            threshold=float(threshold),
-            metrics=(metric,),
-            metric_kwargs={metric: dict(metric_kwargs or {})},
-            zero_division=zero_division,
-        )
-        current_f1 = evaluation[metric].f1
-        current = ThresholdSearchResult(
-            threshold=float(threshold),
-            metric_name=metric,
-            f1=current_f1,
-            evaluation=evaluation,
-        )
-        if best_result is None:
-            best_result = current
-            continue
-
-        if current.f1 > best_result.f1:
-            best_result = current
-            continue
-
-        if current.f1 == best_result.f1 and current.threshold > best_result.threshold:
-            best_result = current
-
-    return best_result
+    return Evaluator(y_true, y_score).best(
+        metric=metric,
+        zero_division=zero_division,
+        **dict(metric_kwargs or {}),
+    )
 
 
 def threshold_by_best_f1(

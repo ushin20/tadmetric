@@ -1,3 +1,15 @@
+"""tadmetric public API.
+
+Start here for most workflows:
+- `evaluator()` for score-based evaluation
+- `e.point_wise()`, `e.point_adjusted()`, `e.composite()` for intuitive metric access
+- `e.best()` for best-threshold search on the current scores
+- `api_overview()` for a quick map of the package
+- `available_metrics()` and `describe_metrics()` to discover metric names
+- `evaluate()` for binary predictions
+- `evaluate_scores()` for anomaly scores
+"""
+
 from .adjusted import (
     point_adjusted_f1,
     point_adjusted_k_f1,
@@ -12,7 +24,20 @@ from .curves import auc_pr, auc_roc, precision_recall_curve, roc_curve
 from .delay import mean_time_to_detect, median_time_to_detect, missed_detection_rate, time_to_detect
 from .event import event_f1, event_precision, event_recall
 from .intervals import contains, interval_intersection, interval_iou, interval_overlap, interval_union_length, merge_intervals
-from .metrics import PRFScore, EvaluationResult, available_metrics, evaluate, evaluate_scores, register_metric
+from .metrics import (
+    PRFScore,
+    BinaryEvaluationContext,
+    EvaluationResult,
+    Evaluator,
+    MetricSpec,
+    api_overview,
+    available_metrics,
+    describe_metrics,
+    evaluator,
+    evaluate,
+    evaluate_scores,
+    register_metric,
+)
 from .point import point_f1, point_precision, point_recall
 from .threshold import (
     ThresholdSearchResult,
@@ -25,9 +50,11 @@ from .threshold import (
 
 __all__ = [
     "apply_hysteresis",
+    "api_overview",
     "auc_pr",
     "auc_roc",
     "binary_to_intervals",
+    "BinaryEvaluationContext",
     "composite_f1",
     "composite_precision",
     "composite_recall",
@@ -37,8 +64,10 @@ __all__ = [
     "event_precision",
     "event_recall",
     "events_from_binary",
+    "evaluator",
     "evaluate",
     "evaluate_scores",
+    "Evaluator",
     "interval_intersection",
     "interval_iou",
     "interval_overlap",
@@ -47,6 +76,7 @@ __all__ = [
     "mean_time_to_detect",
     "median_time_to_detect",
     "merge_intervals",
+    "MetricSpec",
     "missed_detection_rate",
     "point_adjusted_f1",
     "point_adjusted_k_f1",
@@ -60,6 +90,7 @@ __all__ = [
     "precision_recall_curve",
     "PRFScore",
     "register_metric",
+    "describe_metrics",
     "roc_curve",
     "search_best_f1_threshold",
     "scores_to_binary",

@@ -3,8 +3,8 @@
 Lightweight evaluation metrics for time-series anomaly detection.
 
 `tadmetric` helps you evaluate anomaly scores or binary predictions with a small,
-simple API. It includes point-wise metrics, point-adjusted metrics, point-adjusted
-`%K`, composite metrics, event-wise metrics, delay-aware metrics, and threshold search.
+simple API. The primary workflow is centered on `evaluator(...)`, where you ask
+for a metric result or the best threshold directly.
 
 ## Installation
 
@@ -22,41 +22,45 @@ pip install tadmetric
 
 ## Quick start
 
-### Evaluate from anomaly scores
+### Discover the API quickly
 
 ```python
-from tadmetric import evaluate_scores
+import tadmetric as tm
 
-y_true = [0, 0, 1, 1, 1, 0, 0]
-y_score = [0.1, 0.2, 0.4, 0.9, 0.7, 0.1, 0.0]
-
-result = evaluate_scores(
-    y_true,
-    y_score,
-    threshold=0.5,
-    metric_kwargs={"point_adjusted_k": {"k": 50}},
-)
-
-print(result["point"].asdict())
-print(result["point_adjusted"].asdict())
-print(result["point_adjusted_k"].asdict())
-print(result["composite"].asdict())
+print(tm.api_overview())
+e = tm.evaluator(y_true, y_score)
+pre, rec, f1 = e.point_adjusted(thr=0.3)
+pre_k, rec_k, f1_k = e.point_adjusted(k=30)
+print(e.best(metric="composite").threshold)
+print(tm.available_metrics())
+print([spec.asdict() for spec in tm.describe_metrics()])
 ```
 
-### Find the best threshold
+### Evaluate with a reusable evaluator
 
 ```python
-from tadmetric import search_best_f1_threshold
+from tadmetric import evaluator
 
-y_true = [0, 0, 1, 1, 1, 0, 0]
-y_score = [0.1, 0.2, 0.4, 0.9, 0.7, 0.1, 0.0]
+e = evaluator(y_true, y_score)
 
-best = search_best_f1_threshold(y_true, y_score, metric="composite")
+point_pre, point_rec, point_f1 = e.point_wise(thr=0.5)
+pa_pre, pa_rec, pa_f1 = e.point_adjusted(thr=0.3)
+pa_default_pre, pa_default_rec, pa_default_f1 = e.point_adjusted()
+comp_pre, comp_rec, comp_f1 = e.composite()
+best = e.best(metric="composite")
 
 print(best.threshold)
 print(best.f1)
 print(best.evaluation["composite"].asdict())
+print((pa_pre, pa_rec, pa_f1))
+
+e.reevaluate(other_y_true, other_y_score)
 ```
+
+Public evaluator metrics are:
+- `point_wise`
+- `point_adjusted` with `k=100` by default
+- `composite`
 
 ## Included metrics
 
@@ -98,9 +102,16 @@ print(best.evaluation["composite"].asdict())
 
 For most workflows, these are the main entry points:
 
+- `evaluator`
+- `e.point_wise(thr=...)`
+- `e.point_adjusted(thr=..., k=100)`
+- `e.composite(thr=...)`
+- `e.best(metric=...)`
 - `evaluate`
 - `evaluate_scores`
 - `available_metrics`
+- `describe_metrics`
+- `api_overview`
 - `register_metric`
 
 ## Metric semantics
