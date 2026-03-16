@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tadmetric"
+version = "0.1.0"
+description = "A lightweight evaluation toolkit for time-series anomaly detection"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+authors = [
+  {name = "ushin20", email = "yooshin0303@dgist.ac.kr"}
+]
+dependencies = [
+  "numpy>=1.23",
+  "scikit-learn>=1.2"
+]
+keywords = ["time series", "anomaly detection", "metrics", "evaluation", "tsad"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence"
+]
+
+[project.urls]
+Homepage = "https://github.com/ushin20/tadmetric"
+Documentation = "https://github.com/ushin20/tadmetric/tree/main/docs"
+Repository = "https://github.com/ushin20/tadmetric"
+Issues = "https://github.com/ushin20/tadmetric/issues"
+
+[project.optional-dependencies]
+dev = [
+  "build>=1.2",
+  "pytest>=7.0",
+  "twine>=5.0"
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
