@@ -333,9 +333,8 @@ class Tadmetric:
             f"{index:>3}/{total:<3} {percent:6.2f}% "
             f"f1={current_f1:.4f} pre={current_pre:.4f} rec={current_rec:.4f} "
         )
-        threshold_text = f"thr={threshold:.6f}"
-        visible_suffix_width = len(summary) + len(threshold_text)
-        bar_width = max(10, terminal_width - visible_suffix_width - 4)
+        
+        bar_width = 10
         filled = int(bar_width * index / total)
 
         reset = "\033[0m"
@@ -352,9 +351,11 @@ class Tadmetric:
             remaining = " " * max(0, bar_width - filled - 1)
             bar = completed + spinner + remaining
 
+        visible_text = f"[{mode}][{bar}]{summary}"
+        trailing_padding = " " * max(0, terminal_width - len(visible_text))
         message = (
             f"\r{accent_color}[{mode}]{reset}{bar_color}[{bar}]{reset}"
-            f"{text_color}{summary}{reset}"
+            f"{text_color}{summary}{reset}{trailing_padding}"
         )
         sys.stdout.write(message)
         sys.stdout.flush()

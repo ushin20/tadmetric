@@ -1,5 +1,6 @@
 import pytest
 import numpy as np
+import shutil
 import tadmetric as tm
 
 
@@ -91,7 +92,27 @@ def test_search_verbose_progress_bar_on_large_input():
 
     metric = tm.Tadmetric(score=score, label=label)
     result = metric.search(mode="point-wise", steps=100, verbose=True)
-    
-    
+
+
+def test_search_verbose_progress_clears_previous_line(capsys, monkeypatch):
+    monkeypatch.setattr(shutil, "get_terminal_size", lambda fallback=(100, 20): shutil.os.terminal_size((100, 20)))
+
+    metric = tm.Tadmetric(
+        score=[0.1, 0.2, 0.4, 0.9, 0.7, 0.1, 0.0],
+        label=[0, 0, 1, 1, 1, 0, 0],
+    )
+
+    metric.search(mode="point-adjusted", start=0.0, end=1.0, steps=5, verbose=True)
+    metric.search(mode="point-wise", start=0.0, end=1.0, steps=5, verbose=True)
+
+    captured = capsys.readouterr().out
+    final_line = captured.splitlines()[-1]
+
+    assert "[point-wise]" in final_line
+    assert "thr=" not in final_line
+    assert "0000[point-wise]" not in final_line
+
+
 if __name__ == "__main__":
+    test_search_verbose_progress_bar_on_large_input()
     test_search_verbose_progress_bar_on_large_input()
