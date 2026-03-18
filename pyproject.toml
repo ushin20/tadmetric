@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tadmetric"
-version = "0.1.4"
+version = "0.2.0"
 description = "A lightweight evaluation toolkit for time-series anomaly detection"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -13,8 +13,7 @@ authors = [
   {name = "ushin20", email = "yooshin0303@dgist.ac.kr"}
 ]
 dependencies = [
-  "numpy>=1.23",
-  "scikit-learn>=1.2"
+  "numpy>=1.23"
 ]
 keywords = ["time series", "anomaly detection", "metrics", "evaluation", "tsad"]
 classifiers = [

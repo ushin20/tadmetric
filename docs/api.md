@@ -1,47 +1,52 @@
 # API
 
-## Quick discovery
+## Main Class
 
 ```python
-import tadmetric as tm
+from tadmetric import Tadmetric
 
-print(tm.api_overview())
-e = tm.evaluator(y_true, y_score)
-print(e.point_adjusted(thr=0.3).f1)
-print(e.point_adjusted(k=30).precision)
-print(e.best(metric="composite").threshold)
-print(tm.available_metrics())
-print([spec.asdict() for spec in tm.describe_metrics()])
+tm = Tadmetric(score, label)
 ```
 
-## Main entry points
-
-- `evaluator(y_true, y_score)`
-- `e.point_wise(thr=...)`
-- `e.point_adjusted(thr=..., k=100)`
-- `e.composite(thr=...)`
-- `e.best(metric="composite")`
-- `evaluate(y_true, y_pred, ...)`
-- `evaluate_scores(y_true, y_score, threshold=...)`
-- `search_best_f1_threshold(y_true, y_score, ...)`
-
-## Reusable evaluator
+## Evaluation
 
 ```python
-from tadmetric import evaluator
-
-e = evaluator(y_true, y_score)
-
-pre, rec, f1 = e.point_wise(thr=0.5)
-pre, rec, f1 = e.point_adjusted(thr=0.5, k=30)
-pre, rec, f1 = e.point_adjusted()
-pre, rec, f1 = e.composite()
-e.best(metric="composite")
-
-e.reevaluate(next_y_true, next_y_score)
+point = tm.evaluate(0.5, mode="point-wise")
+adjusted = tm.evaluate(0.5, mode="point-adjusted", calc_latency=True)
+composite = tm.evaluate(0.5, mode="composite")
 ```
 
-Evaluator metric names:
-- `point_wise`
-- `point_adjusted` with `k=100` by default
+Each call returns a `MetricResult`.
+
+Important fields:
+
+- `f1`
+- `precision`
+- `recall`
+- `tp`, `tn`, `fp`, `fn`
+- `latency`
+- `detected_events`, `total_events`
+
+## Search
+
+```python
+best = tm.search(mode="point-adjusted")
+print(best.threshold)
+print(best.result.asdict())
+```
+
+`search()` evaluates the exact unique score thresholds.
+
+If you want a grid search over a fixed range:
+
+```python
+best = tm.search(start=0.0, end=1.0, steps=101, mode="point-wise", verbose=False)
+```
+
+## Modes
+
+- `point-wise`
+- `point-adjusted`
 - `composite`
+
+Common aliases such as `point`, `point_wise`, `point_adjusted`, and `comp` are also accepted.

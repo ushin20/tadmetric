@@ -1,9 +1,19 @@
 # Concepts
 
-## Interval semantics
+## Point-wise
 
-Intervals use half-open semantics: `[start, end)`.
+Each timestamp is treated independently.
 
-## Event matching
+## Point-adjusted
 
-By default, an event is counted as detected when the overlap length is greater than zero.
+If any timestamp inside a true anomaly event is detected, the whole event is
+credited for point-adjusted evaluation.
+
+## Composite
+
+Composite F1 combines point-wise precision with event-wise recall.
+
+## Search Behavior
+
+`search()` evaluates the unique score levels directly. If several thresholds
+have the same score, the higher threshold is preferred.
