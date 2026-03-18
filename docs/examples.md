@@ -26,3 +26,5 @@ best = tm.search(mode="point-adjusted")
 print(best.threshold)
 print(best.f1)
 ```
+
+This default search checks 100 thresholds between the minimum and maximum score.

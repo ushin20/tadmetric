@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+import shutil
+import sys
 from typing import Any
 
 import numpy as np
@@ -289,22 +291,73 @@ class Tadmetric:
             if self._is_better(current=current, best=best_result):
                 best_result = current
                 best_threshold = float(threshold)
-                if verbose:
-                    print(
-                        f"[{index}/{len(thresholds)}] "
-                        f"{normalized_mode} f1={current.f1:.4f}, "
-                        f"precision={current.precision:.4f}, recall={current.recall:.4f}, "
-                        f"threshold={threshold:.6f}"
-                    )
+            if verbose:
+                self._render_search_progress(
+                    index=index,
+                    total=len(thresholds),
+                    mode=normalized_mode,
+                    threshold=float(threshold),
+                    best_result=best_result,
+                    best_threshold=best_threshold,
+                )
 
         assert best_result is not None
         assert best_threshold is not None
+        if verbose:
+            sys.stdout.write("\n")
         return SearchResult(
             mode=normalized_mode,
             threshold=best_threshold,
             result=best_result,
             candidates_evaluated=len(thresholds),
         )
+
+    @staticmethod
+    def _render_search_progress(
+        *,
+        index: int,
+        total: int,
+        mode: Mode,
+        threshold: float,
+        best_result: MetricResult | None,
+        best_threshold: float | None,
+    ) -> None:
+        terminal_width = shutil.get_terminal_size(fallback=(100, 20)).columns
+        percent = 100.0 * index / total
+
+        current_f1 = best_result.f1 if best_result is not None else 0.0
+        current_pre = best_result.precision if best_result is not None else 0.0
+        current_rec = best_result.recall if best_result is not None else 0.0
+
+        summary = (
+            f"{index:>3}/{total:<3} {percent:6.2f}% "
+            f"f1={current_f1:.4f} pre={current_pre:.4f} rec={current_rec:.4f} "
+        )
+        threshold_text = f"thr={threshold:.6f}"
+        visible_suffix_width = len(summary) + len(threshold_text)
+        bar_width = max(10, terminal_width - visible_suffix_width - 4)
+        filled = int(bar_width * index / total)
+
+        reset = "\033[0m"
+        bar_color = "\033[38;5;218m"
+        text_color = "\033[38;5;252m"
+        accent_color = "\033[38;5;225m"
+        spinner_frames = ["|", "/", "-", "\\"]
+
+        if filled >= bar_width:
+            bar = "━" * bar_width
+        else:
+            spinner = spinner_frames[(index - 1) % len(spinner_frames)]
+            completed = "━" * max(0, filled)
+            remaining = " " * max(0, bar_width - filled - 1)
+            bar = completed + spinner + remaining
+
+        message = (
+            f"\r{accent_color}[{mode}]{reset}{bar_color}[{bar}]{reset}"
+            f"{text_color}{summary}{reset}"
+        )
+        sys.stdout.write(message)
+        sys.stdout.flush()
 
     def _search_thresholds(
         self,
@@ -314,7 +367,8 @@ class Tadmetric:
         steps: int,
     ) -> npt.NDArray[np.float64]:
         if start is None and end is None:
-            return self._exact_thresholds()
+            start = float(self.score.min())
+            end = float(self.score.max())
         if start is None or end is None:
             raise ValueError("start and end must either both be provided or both be omitted")
         if steps < 1:

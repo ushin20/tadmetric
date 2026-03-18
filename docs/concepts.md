@@ -15,5 +15,6 @@ Composite F1 combines point-wise precision with event-wise recall.
 
 ## Search Behavior
 
-`search()` evaluates the unique score levels directly. If several thresholds
-have the same score, the higher threshold is preferred.
+`search()` evaluates a threshold grid from `score.min()` to `score.max()` by
+default. If several thresholds have the same score, the higher threshold is
+preferred.

@@ -35,7 +35,7 @@ print(best.threshold)
 print(best.result.asdict())
 ```
 
-`search()` evaluates the exact unique score thresholds.
+`search()` evaluates `steps=100` thresholds from `score.min()` to `score.max()` by default.
 
 If you want a grid search over a fixed range:
 

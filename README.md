@@ -45,7 +45,7 @@ The mode argument accepts a few aliases such as `point`, `point_wise`, `point_ad
 
 ## Threshold Search
 
-Use `search()` when you want the best threshold over the actual score values:
+Use `search()` when you want the best threshold over a threshold grid:
 
 ```python
 from tadmetric import Tadmetric
@@ -58,7 +58,7 @@ print(best.f1)
 print(best.result.asdict())
 ```
 
-`search()` checks the unique score levels directly. If multiple thresholds tie, it prefers the higher threshold.
+By default, `search()` scans `steps=100` thresholds from `score.min()` to `score.max()`. If multiple thresholds tie, it prefers the higher threshold.
 
 ```python
 best = tm.search(start=0.0, end=1.0, steps=101, mode="point-wise", verbose=False)
